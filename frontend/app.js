@@ -42,7 +42,6 @@ async function loadUserData() {
         if (goal) {
             currentGoal = goal;
             showMainScreen();
-            loadTransactions();
         } else {
             showOnboardingScreen();
         }
@@ -88,40 +87,6 @@ function updateGoalDisplay() {
     }
 }
 
-async function loadTransactions() {
-    try {
-        const transactions = await apiRequest('/savings/transactions?limit=10');
-        displayTransactions(transactions);
-    } catch (error) {
-        console.error('Failed to load transactions:', error);
-    }
-}
-
-function displayTransactions(transactions) {
-    const container = document.getElementById('transactions-list');
-
-    if (transactions.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--tg-theme-hint-color);">Нет операций</p>';
-        return;
-    }
-
-    container.innerHTML = transactions.map(transaction => {
-        const date = new Date(transaction.created_at);
-        const isDeposit = transaction.type === 'deposit';
-
-        return `
-            <div class="transaction-item ${transaction.type}">
-                <div class="transaction-info">
-                    <span class="transaction-type">${isDeposit ? 'Пополнение' : 'Снятие'}</span>
-                    <span class="transaction-date">${date.toLocaleString('ru-RU')}</span>
-                </div>
-                <span class="transaction-amount ${isDeposit ? 'positive' : 'negative'}">
-                    ${isDeposit ? '+' : '-'}${formatNumber(transaction.amount)} ₽
-                </span>
-            </div>
-        `;
-    }).join('');
-}
 
 function formatNumber(num) {
     return new Intl.NumberFormat('ru-RU').format(Math.round(num));
@@ -158,7 +123,6 @@ async function processTransaction() {
 
         currentGoal.current_amount = result.current_amount;
         updateGoalDisplay();
-        loadTransactions();
         closeTransactionModal();
 
         tg.HapticFeedback.notificationOccurred('success');
@@ -187,7 +151,6 @@ document.getElementById('goal-form').addEventListener('submit', async (e) => {
         });
 
         showMainScreen();
-        loadTransactions();
         tg.HapticFeedback.notificationOccurred('success');
     } catch (error) {
         console.error('Failed to create goal:', error);

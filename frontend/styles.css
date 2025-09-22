@@ -199,67 +199,6 @@ body {
     font-size: 20px;
 }
 
-.transactions-section {
-    margin-top: auto;
-}
-
-.transactions-section h3 {
-    font-size: 18px;
-    margin-bottom: 15px;
-}
-
-#transactions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.transaction-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    background: var(--tg-theme-secondary-bg-color);
-    border-radius: 8px;
-}
-
-.transaction-item.deposit {
-    border-left: 3px solid #4CAF50;
-}
-
-.transaction-item.withdrawal {
-    border-left: 3px solid #f44336;
-}
-
-.transaction-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.transaction-type {
-    font-size: 14px;
-    color: var(--tg-theme-hint-color);
-}
-
-.transaction-date {
-    font-size: 12px;
-    color: var(--tg-theme-hint-color);
-}
-
-.transaction-amount {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-.transaction-amount.positive {
-    color: #4CAF50;
-}
-
-.transaction-amount.negative {
-    color: #f44336;
-}
 
 .modal {
     position: fixed;
