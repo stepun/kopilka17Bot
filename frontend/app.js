@@ -99,15 +99,20 @@ function displayGoalsList() {
         const progress = Math.min((goal.current_amount / goal.target_amount) * 100, 100);
 
         return `
-            <div class="goal-card" onclick="openGoal(${goal.id})">
-                <div class="goal-card-header">
-                    <div class="goal-card-title">${goal.name}</div>
-                    <div class="goal-card-amount">${formatNumber(goal.current_amount)} / ${formatNumber(goal.target_amount)} ₽</div>
+            <div class="goal-card">
+                <div class="goal-card-content" onclick="openGoal(${goal.id})">
+                    <div class="goal-card-header">
+                        <div class="goal-card-title">${goal.name}</div>
+                        <div class="goal-card-amount">${formatNumber(goal.current_amount)} / ${formatNumber(goal.target_amount)} ₽</div>
+                    </div>
+                    <div class="goal-card-progress">
+                        <div class="goal-card-progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="goal-card-percent">${progress.toFixed(1)}%</div>
                 </div>
-                <div class="goal-card-progress">
-                    <div class="goal-card-progress-fill" style="width: ${progress}%"></div>
-                </div>
-                <div class="goal-card-percent">${progress.toFixed(1)}%</div>
+                <button class="goal-delete-btn" onclick="event.stopPropagation(); confirmDeleteGoalFromList(${goal.id})" title="Удалить цель">
+                    🗑️
+                </button>
             </div>
         `;
     }).join('');
@@ -205,6 +210,7 @@ async function processTransaction() {
     }
 }
 
+// Обработчик для формы на экране onboarding
 document.getElementById('goal-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -226,6 +232,35 @@ document.getElementById('goal-form').addEventListener('submit', async (e) => {
 
         allGoals.push(newGoal);
         showMainScreen(newGoal);
+        tg.HapticFeedback.notificationOccurred('success');
+    } catch (error) {
+        console.error('Failed to create goal:', error);
+    }
+});
+
+// Обработчик для новой формы создания цели
+document.getElementById('new-goal-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('new-goal-name').value;
+    const targetAmount = parseFloat(document.getElementById('new-goal-amount').value);
+    const initialAmount = parseFloat(document.getElementById('new-initial-amount').value) || 0;
+
+    if (!name || !targetAmount || targetAmount <= 0) {
+        tg.showAlert('Заполните все поля корректно');
+        return;
+    }
+
+    try {
+        const newGoal = await apiRequest('/savings/goal', 'POST', {
+            name,
+            target_amount: targetAmount,
+            initial_amount: initialAmount
+        });
+
+        allGoals.push(newGoal);
+        hideCreateGoalForm();
+        displayGoalsList();
         tg.HapticFeedback.notificationOccurred('success');
     } catch (error) {
         console.error('Failed to create goal:', error);
@@ -267,6 +302,48 @@ async function deleteGoal() {
         console.error('Failed to delete goal:', error);
         tg.showAlert('Ошибка при удалении цели');
     }
+}
+
+// Функции для управления формой создания цели
+function showCreateGoalForm() {
+    document.getElementById('create-goal-form').style.display = 'block';
+    document.getElementById('new-goal-name').value = '';
+    document.getElementById('new-goal-amount').value = '';
+    document.getElementById('new-initial-amount').value = '0';
+}
+
+function hideCreateGoalForm() {
+    document.getElementById('create-goal-form').style.display = 'none';
+}
+
+function showCreateGoalFromMain() {
+    showGoalsList();
+    showCreateGoalForm();
+}
+
+function confirmDeleteGoalFromList(goalId) {
+    const goal = allGoals.find(g => g.id === goalId);
+    if (!goal) return;
+
+    tg.showConfirm(`Удалить цель "${goal.name}"? Это действие нельзя отменить.`, async (result) => {
+        if (result) {
+            try {
+                await apiRequest(`/savings/goal/${goalId}`, 'DELETE');
+                allGoals = allGoals.filter(g => g.id !== goalId);
+
+                if (allGoals.length > 0) {
+                    displayGoalsList();
+                } else {
+                    showOnboardingScreen();
+                }
+
+                tg.HapticFeedback.notificationOccurred('success');
+            } catch (error) {
+                console.error('Failed to delete goal:', error);
+                tg.showAlert('Ошибка при удалении цели');
+            }
+        }
+    });
 }
 
 if (tg.themeParams) {

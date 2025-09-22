@@ -42,16 +42,43 @@
         <div id="goals-list" class="screen" style="display: none;">
             <div class="goals-header">
                 <h1>Мои цели</h1>
-                <button class="btn btn-primary" onclick="showOnboardingScreen()">
+                <button class="btn btn-primary" onclick="showCreateGoalForm()">
                     <span class="emoji">➕</span> Новая цель
                 </button>
             </div>
             <div id="goals-container"></div>
+
+            <div id="create-goal-form" class="goal-form-container" style="display: none;">
+                <h3>Создать новую цель</h3>
+                <form id="new-goal-form">
+                    <div class="form-group">
+                        <label>Название цели</label>
+                        <input type="text" id="new-goal-name" placeholder="Например: Новый телефон" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Сколько нужно накопить</label>
+                        <input type="number" id="new-goal-amount" placeholder="100000" required min="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Сколько уже есть</label>
+                        <input type="number" id="new-initial-amount" placeholder="0" min="0" value="0">
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="hideCreateGoalForm()">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Создать цель</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div id="main" class="screen" style="display: none;">
             <div class="header">
-                <button class="btn btn-back" onclick="showGoalsList()">← Назад</button>
+                <button class="btn btn-primary" onclick="showCreateGoalFromMain()">
+                    <span class="emoji">➕</span> Новая цель
+                </button>
                 <h2 id="goal-title"></h2>
                 <div class="amount-display">
                     <span id="current-amount">0</span> / <span id="target-amount">0</span> ₽
@@ -73,9 +100,6 @@
                 </button>
                 <button class="btn btn-danger" onclick="showTransactionModal('withdrawal')">
                     <span class="emoji">➖</span> Снять
-                </button>
-                <button class="btn btn-delete" onclick="confirmDeleteGoal()">
-                    <span class="emoji">🗑️</span> Удалить цель
                 </button>
             </div>
 
