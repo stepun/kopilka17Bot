@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
 
-const db = require('./database');
+const database = require('./database');
 const savingsRoutes = require('./routes/savings');
 
 const app = express();
@@ -141,8 +141,11 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-db.initialize().then(() => {
+database.initialize().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+}).catch(error => {
+  console.error('Failed to initialize database:', error);
+  process.exit(1);
 });
