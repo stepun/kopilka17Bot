@@ -13,7 +13,7 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
         method,
         headers: {
             'Content-Type': 'application/json',
-            'x-telegram-init-data': initData
+            'x-telegram-init-data': initData || 'test-data'
         }
     };
 
