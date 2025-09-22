@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Копилка</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <div id="loader" class="loader">
+            <div class="spinner"></div>
+        </div>
+
+        <div id="onboarding" class="screen" style="display: none;">
+            <div class="onboarding-content">
+                <h1>Создайте цель</h1>
+                <p>Начните копить на свою мечту!</p>
+
+                <form id="goal-form">
+                    <div class="form-group">
+                        <label>Название цели</label>
+                        <input type="text" id="goal-name" placeholder="Например: Новый телефон" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Сколько нужно накопить</label>
+                        <input type="number" id="goal-amount" placeholder="100000" required min="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Сколько уже есть</label>
+                        <input type="number" id="initial-amount" placeholder="0" min="0" value="0">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Создать цель</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="main" class="screen" style="display: none;">
+            <div class="header">
+                <h2 id="goal-title"></h2>
+                <div class="amount-display">
+                    <span id="current-amount">0</span> / <span id="target-amount">0</span> ₽
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="progress-percent">0%</span>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-success" onclick="showTransactionModal('deposit')">
+                    <span class="emoji">➕</span> Пополнить
+                </button>
+                <button class="btn btn-danger" onclick="showTransactionModal('withdrawal')">
+                    <span class="emoji">➖</span> Снять
+                </button>
+            </div>
+
+            <div class="transactions-section">
+                <h3>История операций</h3>
+                <div id="transactions-list"></div>
+            </div>
+        </div>
+
+        <div id="transaction-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h3 id="modal-title"></h3>
+                <input type="number" id="transaction-amount" placeholder="Введите сумму" min="1">
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="closeTransactionModal()">Отмена</button>
+                    <button class="btn btn-primary" onclick="processTransaction()">Подтвердить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

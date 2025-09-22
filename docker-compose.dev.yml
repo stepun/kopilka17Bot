@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  webapp:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - WEBAPP_URL=http://localhost:3000
+      - PORT=3000
+    volumes:
+      - ./backend:/app/backend
+      - ./frontend:/app/frontend
+      - ./data:/app/data
+    restart: unless-stopped
+    command: npm run dev
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - WEBAPP_URL=http://localhost:3000
+    volumes:
+      - ./bot:/app/bot
+    depends_on:
+      - webapp
+    restart: unless-stopped
