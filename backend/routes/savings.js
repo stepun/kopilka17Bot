@@ -34,14 +34,31 @@ router.get('/user', async (req, res) => {
   );
 });
 
-router.get('/goal', async (req, res) => {
+router.get('/goals', async (req, res) => {
   const telegram_id = req.telegramUser.id;
+
+  db.all(
+    `SELECT g.* FROM goals g
+     JOIN users u ON g.user_id = u.id
+     WHERE u.telegram_id = ? AND g.is_active = 1
+     ORDER BY g.created_at DESC`,
+    [telegram_id],
+    (err, goals) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(goals || []);
+    }
+  );
+});
+
+router.get('/goal/:id', async (req, res) => {
+  const telegram_id = req.telegramUser.id;
+  const goalId = req.params.id;
 
   db.get(
     `SELECT g.* FROM goals g
      JOIN users u ON g.user_id = u.id
-     WHERE u.telegram_id = ? AND g.is_active = 1`,
-    [telegram_id],
+     WHERE u.telegram_id = ? AND g.id = ? AND g.is_active = 1`,
+    [telegram_id, goalId],
     (err, goal) => {
       if (err) return res.status(500).json({ error: err.message });
       res.json(goal || null);
@@ -61,32 +78,24 @@ router.post('/goal', async (req, res) => {
       if (!user) return res.status(404).json({ error: 'User not found' });
 
       db.run(
-        'UPDATE goals SET is_active = 0 WHERE user_id = ?',
-        [user.id],
-        (err) => {
+        `INSERT INTO goals (user_id, name, target_amount, current_amount, initial_amount)
+         VALUES (?, ?, ?, ?, ?)`,
+        [user.id, name, target_amount, initial_amount, initial_amount],
+        function(err) {
           if (err) return res.status(500).json({ error: err.message });
 
           db.run(
-            `INSERT INTO goals (user_id, name, target_amount, current_amount, initial_amount)
-             VALUES (?, ?, ?, ?, ?)`,
-            [user.id, name, target_amount, initial_amount, initial_amount],
-            function(err) {
-              if (err) return res.status(500).json({ error: err.message });
-
-              db.run(
-                `INSERT INTO activity_logs (user_id, action, details)
-                 VALUES (?, 'goal_created', ?)`,
-                [user.id, JSON.stringify({ goal_id: this.lastID, name, target_amount })],
-                () => {
-                  res.json({
-                    id: this.lastID,
-                    name,
-                    target_amount,
-                    current_amount: initial_amount,
-                    initial_amount
-                  });
-                }
-              );
+            `INSERT INTO activity_logs (user_id, action, details)
+             VALUES (?, 'goal_created', ?)`,
+            [user.id, JSON.stringify({ goal_id: this.lastID, name, target_amount })],
+            () => {
+              res.json({
+                id: this.lastID,
+                name,
+                target_amount,
+                current_amount: initial_amount,
+                initial_amount
+              });
             }
           );
         }
@@ -96,21 +105,25 @@ router.post('/goal', async (req, res) => {
 });
 
 router.post('/transaction', async (req, res) => {
-  const { type, amount } = req.body;
+  const { type, amount, goal_id } = req.body;
   const telegram_id = req.telegramUser.id;
 
   if (!['deposit', 'withdrawal'].includes(type)) {
     return res.status(400).json({ error: 'Invalid transaction type' });
   }
 
+  if (!goal_id) {
+    return res.status(400).json({ error: 'Goal ID is required' });
+  }
+
   db.get(
     `SELECT g.*, u.id as user_id FROM goals g
      JOIN users u ON g.user_id = u.id
-     WHERE u.telegram_id = ? AND g.is_active = 1`,
-    [telegram_id],
+     WHERE u.telegram_id = ? AND g.id = ? AND g.is_active = 1`,
+    [telegram_id, goal_id],
     (err, goal) => {
       if (err) return res.status(500).json({ error: err.message });
-      if (!goal) return res.status(404).json({ error: 'Active goal not found' });
+      if (!goal) return res.status(404).json({ error: 'Goal not found' });
 
       const newAmount = type === 'deposit'
         ? goal.current_amount + amount
@@ -167,6 +180,46 @@ router.get('/transactions', async (req, res) => {
     (err, transactions) => {
       if (err) return res.status(500).json({ error: err.message });
       res.json(transactions || []);
+    }
+  );
+});
+
+router.delete('/goal/:id', async (req, res) => {
+  const telegram_id = req.telegramUser.id;
+  const goalId = req.params.id;
+
+  db.get(
+    'SELECT id FROM users WHERE telegram_id = ?',
+    [telegram_id],
+    (err, user) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      db.get(
+        'SELECT * FROM goals WHERE id = ? AND user_id = ? AND is_active = 1',
+        [goalId, user.id],
+        (err, goal) => {
+          if (err) return res.status(500).json({ error: err.message });
+          if (!goal) return res.status(404).json({ error: 'Goal not found' });
+
+          db.run(
+            'UPDATE goals SET is_active = 0 WHERE id = ?',
+            [goalId],
+            (err) => {
+              if (err) return res.status(500).json({ error: err.message });
+
+              db.run(
+                `INSERT INTO activity_logs (user_id, action, details)
+                 VALUES (?, 'goal_deleted', ?)`,
+                [user.id, JSON.stringify({ goal_id: goalId, name: goal.name })],
+                () => {
+                  res.json({ success: true, message: 'Goal deleted successfully' });
+                }
+              );
+            }
+          );
+        }
+      );
     }
   );
 });

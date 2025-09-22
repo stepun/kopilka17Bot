@@ -39,8 +39,19 @@
             </div>
         </div>
 
+        <div id="goals-list" class="screen" style="display: none;">
+            <div class="goals-header">
+                <h1>Мои цели</h1>
+                <button class="btn btn-primary" onclick="showOnboardingScreen()">
+                    <span class="emoji">➕</span> Новая цель
+                </button>
+            </div>
+            <div id="goals-container"></div>
+        </div>
+
         <div id="main" class="screen" style="display: none;">
             <div class="header">
+                <button class="btn btn-back" onclick="showGoalsList()">← Назад</button>
                 <h2 id="goal-title"></h2>
                 <div class="amount-display">
                     <span id="current-amount">0</span> / <span id="target-amount">0</span> ₽
@@ -62,6 +73,9 @@
                 </button>
                 <button class="btn btn-danger" onclick="showTransactionModal('withdrawal')">
                     <span class="emoji">➖</span> Снять
+                </button>
+                <button class="btn btn-delete" onclick="confirmDeleteGoal()">
+                    <span class="emoji">🗑️</span> Удалить цель
                 </button>
             </div>
 
