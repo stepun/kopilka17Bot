@@ -3,6 +3,7 @@ const { Pool } = require('pg');
 // Используем DATABASE_URL от Railway или fallback для локальной разработки
 console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
 console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('Triggering redeploy...');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/savings_bot',
