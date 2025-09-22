@@ -77,6 +77,13 @@ function handleBotMessage(msg) {
   const chatId = msg.chat.id;
   const firstName = msg.from.first_name || 'там';
 
+  console.log('🔍 USER INFO:', {
+    id: msg.from.id,
+    username: msg.from.username,
+    first_name: msg.from.first_name,
+    chat_id: chatId
+  });
+
   if (msg.text === '/start') {
     if (webAppUrl.startsWith('https://')) {
       const keyboard = {
