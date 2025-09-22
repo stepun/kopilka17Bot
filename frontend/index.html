@@ -85,6 +85,11 @@
             <div class="modal-content">
                 <h3 id="modal-title"></h3>
                 <input type="number" id="transaction-amount" placeholder="Введите сумму" min="1">
+                <div id="amount-templates" class="amount-templates" style="display: none;">
+                    <button class="btn btn-template" onclick="addTemplateAmount(100)">+100</button>
+                    <button class="btn btn-template" onclick="addTemplateAmount(500)">+500</button>
+                    <button class="btn btn-template" onclick="addTemplateAmount(1000)">+1000</button>
+                </div>
                 <div class="modal-buttons">
                     <button class="btn btn-secondary" onclick="closeTransactionModal()">Отмена</button>
                     <button class="btn btn-primary" onclick="processTransaction()">Подтвердить</button>

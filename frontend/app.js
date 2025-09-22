@@ -30,7 +30,19 @@ async function apiRequest(endpoint, method = 'GET', body = null) {
         return await response.json();
     } catch (error) {
         console.error('API request failed:', error);
-        tg.showAlert('Произошла ошибка. Попробуйте позже.');
+
+        // Более детальная обработка ошибок
+        if (error.message.includes('400')) {
+            if (endpoint.includes('transaction')) {
+                tg.showAlert('Вы пытаетесь снять больше, чем у вас есть');
+            } else {
+                tg.showAlert('Неверные данные. Проверьте введенную информацию.');
+            }
+        } else if (error.message.includes('404')) {
+            tg.showAlert('Цель не найдена');
+        } else {
+            tg.showAlert('Произошла ошибка. Попробуйте позже.');
+        }
         throw error;
     }
 }
@@ -141,10 +153,26 @@ function showTransactionModal(type) {
     currentTransactionType = type;
     const modal = document.getElementById('transaction-modal');
     const title = document.getElementById('modal-title');
+    const templates = document.getElementById('amount-templates');
 
     title.textContent = type === 'deposit' ? 'Пополнить копилку' : 'Снять из копилки';
     document.getElementById('transaction-amount').value = '';
+
+    // Показываем шаблоны только для пополнения
+    templates.style.display = type === 'deposit' ? 'grid' : 'none';
+
     modal.style.display = 'flex';
+}
+
+function addTemplateAmount(amount) {
+    const input = document.getElementById('transaction-amount');
+    const currentValue = parseFloat(input.value) || 0;
+    const newValue = currentValue + amount;
+
+    input.value = newValue;
+
+    // Добавляем тактильную обратную связь
+    tg.HapticFeedback.impactOccurred('light');
 }
 
 function closeTransactionModal() {
