@@ -2,9 +2,9 @@
   "name": "savings-tracker-bot",
   "version": "1.0.0",
   "description": "Telegram Mini App for savings tracking",
-  "main": "backend/server.js",
+  "main": "bot/index.js",
   "scripts": {
-    "start": "node backend/server.js",
+    "start": "node bot/index.js",
     "dev": "nodemon backend/server.js",
     "bot": "node bot/index.js",
     "build": "echo 'No build step required'"
