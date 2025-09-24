@@ -32,6 +32,8 @@ Telegram Mini App для отслеживания накоплений на це
 - ✅ Быстрое пополнение (шаблоны +100, +500, +1000)
 - ✅ Удаление целей через UI
 - ✅ Постоянное хранение данных
+- ✅ Telegram Bot интеграция с меню кнопкой
+- ✅ Упрощенные команды бота для навигации
 
 ### UI/UX особенности
 - Интуитивный интерфейс в стиле Telegram
@@ -46,15 +48,19 @@ Telegram Mini App для отслеживания накоплений на це
 ```
 kopilka_bot/
 ├── backend/
-│   ├── server.js          # Главный сервер
+│   ├── server.js          # Главный сервер + Telegram Bot
 │   ├── database.js        # Подключение к PostgreSQL
 │   └── routes/
 │       └── savings.js     # API маршруты
+├── bot/
+│   └── index.js          # Standalone бот (не используется)
 ├── frontend/
 │   ├── index.html         # UI структура
 │   ├── app.js            # Клиентская логика
 │   └── styles.css        # Стили
 ├── Dockerfile            # Конфигурация Docker
+├── Procfile              # Railway web service config
+├── Procfile.bot          # Railway bot service config (резерв)
 └── package.json          # Зависимости проекта
 ```
 
@@ -67,9 +73,10 @@ kopilka_bot/
 ## Развертывание
 
 ### Railway.app
-- Web Service: Express.js приложение
-- PostgreSQL Service: Постоянная база данных
-- Автоматический деплой из Git
+- **Web Service**: Express.js приложение с интегрированным Telegram Bot
+- **PostgreSQL Service**: Постоянная база данных
+- **Автоматический деплой**: из Git main ветки
+- **Unified Architecture**: Бот и веб-приложение в одном процессе
 
 ### Переменные окружения
 ```
