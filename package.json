@@ -4,9 +4,10 @@
   "description": "Telegram Mini App for savings tracking",
   "main": "bot/index.js",
   "scripts": {
-    "start": "node bot/index.js",
+    "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
     "bot": "node bot/index.js",
+    "web": "node backend/server.js",
     "build": "echo 'No build step required'"
   },
   "engines": {
